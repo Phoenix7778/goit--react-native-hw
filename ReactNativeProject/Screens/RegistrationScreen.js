@@ -28,7 +28,14 @@ const RegistrationScreen = ({ onLogin }) => {
   };
 
   const signIn = () => {
-    console.debug("Welcome!");
+    if (login && email && password) {
+      console.log("Registration Form Submitted");
+      console.log("Login:", login);
+      console.log("Email:", email);
+      console.log("Password:", password);
+    } else {
+      console.log("Please fill in all the fields.");
+    }
   };
 
   const addImage = async () => {

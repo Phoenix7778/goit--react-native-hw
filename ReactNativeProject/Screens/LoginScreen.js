@@ -18,7 +18,13 @@ const LoginScreen = ({ onRegister }) => {
   const [password, setPassword] = useState("");
 
   const onLogin = () => {
-    Alert.alert("You are welcome!");
+    if (email && password) {
+      console.log("Login Form Submitted");
+      console.log("Email:", email);
+      console.log("Password:", password);
+    } else {
+      console.log("Please fill in all the fields.");
+    }
   };
 
   const handleRegister = () => {
