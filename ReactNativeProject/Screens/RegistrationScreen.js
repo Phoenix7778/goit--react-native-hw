@@ -21,18 +21,28 @@ const RegistrationScreen = ({ onLogin }) => {
   const [password, setPassword] = useState("");
   const [image, setImage] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [emailError, setEmailError] = useState("");
 
   const handleLogin = () => {
     setIsLoggedIn(true);
     onLogin();
   };
 
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const signIn = () => {
     if (login && email && password) {
-      console.log("Registration Form Submitted");
-      console.log("Login:", login);
-      console.log("Email:", email);
-      console.log("Password:", password);
+      if (validateEmail(email)) {
+        console.log("Registration Form Submitted");
+        console.log("Login:", login);
+        console.log("Email:", email);
+        console.log("Password:", password);
+      } else {
+        setEmailError("Invalid email address");
+      }
     } else {
       console.log("Please fill in all the fields.");
     }

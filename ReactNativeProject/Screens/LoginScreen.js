@@ -16,12 +16,17 @@ const LoginScreen = ({ onRegister }) => {
   const [hidePass, setHidePass] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [emailError, setEmailError] = useState("");
 
   const onLogin = () => {
     if (email && password) {
-      console.log("Login Form Submitted");
-      console.log("Email:", email);
-      console.log("Password:", password);
+      if (validateEmail(email)) {
+        console.log("Login Form Submitted");
+        console.log("Email:", email);
+        console.log("Password:", password);
+      } else {
+        setEmailError("Invalid email address");
+      }
     } else {
       console.log("Please fill in all the fields.");
     }
@@ -29,6 +34,11 @@ const LoginScreen = ({ onRegister }) => {
 
   const handleRegister = () => {
     onRegister();
+  };
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   };
 
   return (
