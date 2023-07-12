@@ -1,121 +1,54 @@
 import React from "react";
-import {
-  StyleSheet,
-  View,
-  Text,
-  Image,
-  FlatList,
-  TouchableOpacity,
-} from "react-native";
-import { Ionicons, Feather } from "@expo/vector-icons";
+import { View, Image, StyleSheet, Text } from "react-native";
 
-const PostsScreen = ({ navigation }) => {
-  const handleLogout = () => {
-    // logout();
-  };
-
-  const renderItem = ({ item }) => (
-    <View>
-      <Image source={{ uri: item.photo }} style={styles.post} />
-      <View>
-        <Text style={styles.title}>{item.comment}</Text>
-      </View>
-      <View style={styles.box}>
-        <View style={styles.commentWrapper}>
-          <TouchableOpacity>
-            <Feather name="message-circle" size={24} color="#BDBDBD" />
-          </TouchableOpacity>
-          <Text style={styles.commentsCount}>
-            {commentsCount[item.id] || 0}
-          </Text>
-        </View>
-        <View style={styles.wrapperLocation}>
-          <TouchableOpacity>
-            <Ionicons name="location-outline" size={24} color="#BDBDBD" />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Text style={styles.locationName}>{item.locationName}</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </View>
-  );
-
+const PostsScreen = () => {
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Posts</Text>
-        <TouchableOpacity onPress={handleLogout}>
-          <Ionicons name="log-out-outline" size={24} color="#FF6C00" />
-        </TouchableOpacity>
+      <View style={styles.avatarWrapper}>
+        <Image style={styles.avatarImg} />
+        <View>
+          <Text style={styles.avatarName}>Natali Romanova</Text>
+          <Text style={styles.avatarEmail}>email@example.com</Text>
+        </View>
       </View>
-      <FlatList
-        data={postsData}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id.toString()}
-      />
+      <View style={styles.navTabs}></View>
     </View>
   );
 };
 
+export default PostsScreen;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
-    paddingHorizontal: 15,
+    paddingHorizontal: 16,
+    paddingVertical: 32,
+    backgroundColor: "#fff",
   },
-  header: {
+  avatarWrapper: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 16,
   },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
+  avatarImg: {
+    width: 60,
+    height: 60,
+    marginRight: 8,
+    backgroundColor: "#f6f6f6",
+    borderRadius: 16,
+  },
+  avatarName: {
+    fontFamily: "Roboto",
+    fontWeight: "700",
+    fontSize: 13,
+    lineHeight: 15,
     color: "#212121",
   },
-  post: {
-    height: 240,
-    width: "100%",
-    borderRadius: 8,
+  avatarEmail: {
+    fontFamily: "Roboto",
+    fontWeight: "400",
+    fontSize: 11,
+    lineHeight: 13,
+    color: "rgba(33, 33, 33, 0.8)",
   },
-  box: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 32,
-  },
-  title: {
-    marginTop: 8,
-    marginBottom: 8,
-    fontFamily: "RobotoMedium",
-    fontSize: 16,
-    lineHeight: 19,
-    color: "#212121",
-  },
-  commentWrapper: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  commentsCount: {
-    fontFamily: "RobotoRegular",
-    fontSize: 16,
-    lineHeight: 19,
-    color: "#BDBDBD",
-    marginLeft: 9,
-  },
-  wrapperLocation: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  locationName: {
-    fontFamily: "RobotoRegular",
-    fontSize: 16,
-    lineHeight: 19,
-    color: "#212121",
-    textDecorationLine: "underline",
-  },
+  navTabs: {},
 });
-
-export default PostsScreen;
