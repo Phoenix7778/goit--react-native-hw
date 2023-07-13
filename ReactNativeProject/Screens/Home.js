@@ -1,16 +1,17 @@
 import React from "react";
-import { TouchableOpacity, StyleSheet } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { TouchableOpacity, StyleSheet } from "react-native";
+
+import PostScreen from "./PostsScreen";
+import CreatePostsScreen from "./CreatePostsScreen";
+import ProfileScreen from "./ProfileScreen";
 
 import SvgArrowLeft from "../assets/svg/SvgArrowLeft";
 import SvgLogOut from "../assets/svg/SvgLogOut";
 import SvgGrid from "../assets/svg/SvgGrid";
 import SvgPlus from "../assets/svg/SvgPlus";
 import SvgUser from "../assets/svg/SvgUser";
-
-import PostsScreen from "./PostsScreen";
-import CreatePostsScreen from "./CreatePostsScreen";
-import ProfileScreen from "./ProfileScreen";
+import SvgTrash from "../assets/svg/SvgTrash";
 
 const BottomTabs = createBottomTabNavigator();
 
@@ -25,25 +26,20 @@ const Home = () => {
           alignItems: "center",
           justifyContent: "center",
         },
-        tabBarOptions: {
-          showLabel: false,
-          activeTintColor: "#ff6c00",
-          inactiveTintColor: "#212121",
-        },
+        tabBarShowLabel: false,
+        tabBarActiveTintColor: "#ff6c00",
+        tabBarInactiveTintColor: "#212121",
       }}
     >
       <BottomTabs.Screen
         name="Posts"
-        component={PostsScreen}
+        component={PostScreen}
         options={({ navigation }) => ({
-          title: "Публікації",
-          headerStyle: styles.headerStyle,
-          headerTintColor: "#212121",
-          headerTitleStyle: styles.headerTitleStyle,
+          ...postsOptions,
           headerRight: () => (
             <SvgLogOut
               onPress={() => navigation.navigate("Login")}
-              title="Return back"
+              title="Log Out"
               color="#fff"
               style={styles.logOut}
             />
@@ -51,20 +47,22 @@ const Home = () => {
           tabBarButton: (props) => (
             <TouchableOpacity {...props} style={styles.btnTab} />
           ),
-          tabBarIcon: ({ color }) => <SvgGrid stroke={color} />,
+          tabBarIcon: ({ color }) => {
+            return <SvgGrid stroke={color} />;
+          },
         })}
       />
       <BottomTabs.Screen
         name="CreatePosts"
         component={CreatePostsScreen}
         options={({ navigation }) => ({
-          title: "Створити публікацію",
-          headerStyle: styles.headerStyle,
-          headerTintColor: "#212121",
-          headerTitleStyle: styles.headerTitleStyle,
+          tabBarStyle: { display: "none" },
+          ...createPostsOptions,
           headerLeft: () => (
             <SvgArrowLeft
-              onPress={() => navigation.navigate("Posts")}
+              onPress={() => {
+                navigation.goBack();
+              }}
               title="Return back"
               color="#fff"
               style={styles.arrowLeft}
@@ -73,20 +71,32 @@ const Home = () => {
           tabBarButton: (props) => (
             <TouchableOpacity
               {...props}
-              style={{ ...styles.btnTab, backgroundColor: "#ff6c00" }}
+              style={[
+                styles.btnTab,
+                {
+                  backgroundColor: props.accessibilityState.selected
+                    ? "#f6f6f6"
+                    : "#ff6c00",
+                  width: props.accessibilityState.selected ? 70 : 40,
+                },
+              ]}
             />
           ),
-          tabBarIcon: () => <SvgPlus fill={"#ffffff"} />,
+          tabBarIcon: ({ focused }) => {
+            return focused ? (
+              <SvgTrash stroke={"#dbdbdb"} />
+            ) : (
+              <SvgPlus fill={"#ffffff"} />
+            );
+          },
         })}
       />
       <BottomTabs.Screen
         name="Profile"
         component={ProfileScreen}
         options={({ navigation }) => ({
-          title: "Профіль",
-          headerStyle: styles.headerStyle,
-          headerTintColor: "#212121",
-          headerTitleStyle: styles.headerTitleStyle,
+          ...createPostsOptions,
+          headerShown: false,
           headerLeft: () => (
             <SvgArrowLeft
               onPress={() => navigation.navigate("Posts")}
@@ -96,35 +106,20 @@ const Home = () => {
             />
           ),
           tabBarButton: (props) => (
-            <TouchableOpacity
-              {...props}
-              style={{ ...styles.btnTab, marginRight: 0 }}
-            />
+            <TouchableOpacity {...props} style={styles.btnTab} />
           ),
-          tabBarIcon: ({ focused, color, size }) => (
-            <SvgUser size={size} fill={color} />
-          ),
+          tabBarIcon: ({ color, size }) => {
+            return <SvgUser size={size} fill={color} />;
+          },
         })}
       />
     </BottomTabs.Navigator>
   );
 };
 
+export default Home;
+
 const styles = StyleSheet.create({
-  headerStyle: {
-    borderBottomWidth: 0.5,
-    borderBottomColor: "rgba(0, 0, 0, 0.3)",
-    boxShadow: "0px 0.5px 0px rgba(0, 0, 0, 0.3)",
-  },
-  headerTitleStyle: {
-    fontFamily: "Roboto",
-    fontStyle: "normal",
-    fontWeight: "bold",
-    fontSize: 17,
-    lineHeight: 22,
-    textAlign: "center",
-    marginLeft: 120,
-  },
   arrowLeft: {
     marginLeft: 16,
     marginRight: 42,
@@ -149,4 +144,39 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Home;
+const createPostsOptions = {
+  title: "Створити публікацію",
+  headerStyle: {
+    borderBottomWidth: 0.5,
+    borderBottomColor: "rgba(0, 0, 0, 0.3)",
+    boxShadow: "0px 0.5px 0px rgba(0, 0, 0, 0.3)",
+  },
+  headerTintColor: "#212121",
+  headerTitleStyle: {
+    fontFamily: "Roboto",
+    fontStyle: "normal",
+    fontWeight: "bold",
+    fontSize: 17,
+    lineHeight: 22,
+    textAlign: "center",
+  },
+};
+
+const postsOptions = {
+  title: "Публікації",
+  headerStyle: {
+    borderBottomWidth: 0.5,
+    borderBottomColor: "rgba(0, 0, 0, 0.3)",
+    boxShadow: "0px 0.5px 0px rgba(0, 0, 0, 0.3)",
+  },
+  headerTintColor: "#212121",
+  headerTitleStyle: {
+    fontFamily: "Roboto",
+    fontStyle: "normal",
+    fontWeight: "bold",
+    fontSize: 17,
+    lineHeight: 22,
+    marginLeft: 120,
+    textAlign: "center",
+  },
+};
