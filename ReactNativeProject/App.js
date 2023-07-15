@@ -1,26 +1,18 @@
-import React from "react";
-import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
-import { StatusBar } from "expo-status-bar";
+import { View } from "react-native";
+import { Provider } from "react-redux";
+import "react-native-gesture-handler";
+import "react-native-url-polyfill/auto";
+import "react-native-get-random-values";
 
-import LoginScreen from "./Screens/LoginScreen";
-import RegistrationScreen from "./Screens/RegistrationScreen";
-import Home from "./Screens/Home";
-
-const MainStack = createStackNavigator();
+import { store } from "./redux/store";
+import Main from "./components/Main";
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <MainStack.Navigator
-        initialRouteName="Home"
-        screenOptions={{ headerShown: false }}
-      >
-        <MainStack.Screen name="Registration" component={RegistrationScreen} />
-        <MainStack.Screen name="Login" component={LoginScreen} />
-        <MainStack.Screen name="Home" component={Home} />
-      </MainStack.Navigator>
-      <StatusBar style="auto" />
-    </NavigationContainer>
+    <Provider store={store}>
+      <View style={{ flex: 1 }}>
+        <Main />
+      </View>
+    </Provider>
   );
 }

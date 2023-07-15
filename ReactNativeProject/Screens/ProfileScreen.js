@@ -1,121 +1,220 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
-  ImageBackground,
-  TouchableOpacity,
-  StyleSheet,
   View,
-  Image,
   Text,
+  StyleSheet,
+  SafeAreaView,
+  FlatList,
+  ImageBackground,
+  Image,
+  TouchableOpacity,
 } from "react-native";
-import * as DocumentPicker from "expo-document-picker";
+import { useSelector, useDispatch } from "react-redux";
+import { Feather } from "@expo/vector-icons";
+import Icon from "react-native-vector-icons/FontAwesome";
 
-import backgroundImg from "../assets/img/background.jpg";
-import ImgAvatar from "../assets/img/avatar.png";
-import SvgAddButton from "../assets/svg/SvgAddButton";
+import { selectUser } from "../redux/auth/selectors";
+import db from "../firebase/config";
+import { logout } from "../redux/auth/operations";
 
 const ProfileScreen = () => {
-  const [avatar, setAvatar] = useState(null);
+  const { userId, avatar, login } = useSelector(selectUser);
+  const [posts, setPosts] = useState([]);
+  const dispatch = useDispatch();
 
-  const onLoadAvatar = async () => {
-    const { type, uri } = await DocumentPicker.getDocumentAsync({
-      type: "image/*",
-    });
+  useEffect(() => {
+    const unsubscribe = db
+      .firestore()
+      .collection("posts")
+      .where("userId", "==", userId)
+      .onSnapshot((snapshot) => {
+        const updatedPosts = [];
+        snapshot.forEach((doc) => {
+          const post = doc.data();
+          post.id = doc.id;
+          post.comments = [];
+          updatedPosts.push(post);
 
-    if (type === "cancel") return setAvatar(null);
+          const commentsSnapshot = doc.ref
+            .collection("comments")
+            .onSnapshot((comments) => {
+              const updatedComments = comments.docs.map((commentDoc) => ({
+                id: commentDoc.id,
+                ...commentDoc.data(),
+              }));
+              const postIndex = updatedPosts.findIndex((p) => p.id === doc.id);
+              if (postIndex !== -1) {
+                updatedPosts[postIndex].comments = updatedComments;
+                setPosts([...updatedPosts]);
+              }
+            });
 
-    setAvatar({ uri });
-  };
+          return () => {
+            commentsSnapshot();
+          };
+        });
+      });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
+  console.log("Profile", posts);
 
   return (
-    <ImageBackground source={backgroundImg} style={styles.bgContainer}>
+    <ImageBackground
+      resizeMode="cover"
+      source={require("../assets/PhotoBG.jpg")}
+      style={styles.imageBg}
+    >
       <View style={styles.container}>
-        <View style={styles.contentWrapper}>
-          <View style={styles.avatarWrapper}>
-            <Image style={styles.avatar} source={ImgAvatar} />
-            <TouchableOpacity
-              style={avatar ? styles.btnAddAvatarLoad : styles.btnAddAvatar}
-              onPress={onLoadAvatar}
-            >
-              <SvgAddButton
-                style={
-                  avatar ? styles.btnAddAvatarSvgLoad : styles.btnAddAvatarSvg
-                }
-              />
-            </TouchableOpacity>
-          </View>
-          <Text style={{ ...styles.title, marginTop: 92 }}>
-            Natali Romanova
-          </Text>
+        <TouchableOpacity
+          style={styles.logoutButton}
+          onPress={() => dispatch(logout())}
+        >
+          <Feather name="log-out" size={24} color="#BDBDBD" />
+        </TouchableOpacity>
+        <View style={styles.profileInfo}>
+          <Image source={{ uri: avatar }} style={styles.profilePhoto} />
+          <Text style={styles.login}>{login}</Text>
         </View>
+        <SafeAreaView>
+          <FlatList
+            data={posts}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <View style={styles.card}>
+                <Image style={styles.image} source={{ uri: item.photo }} />
+                <Text style={styles.title}>{item.name}</Text>
+                <View style={styles.detailsContainer}>
+                  <View style={styles.detailsRow}>
+                    <View style={styles.detailsItem}>
+                      <Icon
+                        name="comment"
+                        color={
+                          item.comments.length >= 0 ? "#FF6C00" : "#BDBDBD"
+                        }
+                        style={styles.commentIcon}
+                        size={24}
+                      />
+                      <Text style={styles.detailsText}>
+                        {item.comments.length >= 0 ? item.comments.length : 0}
+                      </Text>
+                    </View>
+                    <View style={styles.detailsItem}>
+                      <Feather
+                        name="thumbs-up"
+                        size={24}
+                        color={
+                          item.likes && Object.keys(item.likes).length
+                            ? "#FF6C00"
+                            : "#BDBDBD"
+                        }
+                      />
+                      <Text style={styles.detailsText}>
+                        {item.likes ? Object.keys(item.likes).length : 0}
+                      </Text>
+                    </View>
+                  </View>
+                  <View style={styles.detailsRow}>
+                    <Feather name="map-pin" size={24} color="#BDBDBD" />
+                    <Text style={styles.locationText}>
+                      {item.location.country}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            )}
+          />
+        </SafeAreaView>
       </View>
     </ImageBackground>
   );
 };
 
-export default ProfileScreen;
-
 const styles = StyleSheet.create({
+  imageBg: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+  },
   container: {
     flex: 1,
+    marginTop: 200,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    backgroundColor: "#FFFFFF",
+    paddingBottom: 140,
   },
-  bgContainer: {
+  logoutButton: {
+    position: "absolute",
+    top: 22,
+    right: 16,
+    zIndex: 2,
+  },
+  profileInfo: {
+    alignItems: "center",
+  },
+  profilePhoto: {
+    top: -60,
+    width: 120,
+    height: 120,
+    backgroundColor: "#F6F6F6",
+    borderRadius: 16,
+  },
+  login: {
+    color: "#212121",
+    fontSize: 28,
+    letterSpacing: 0.3,
+    top: -35,
+    fontWeight: "bold",
+  },
+  card: {
     flex: 1,
-    resizeMode: "cover",
     justifyContent: "center",
+    marginHorizontal: 16,
+    marginBottom: 34,
   },
-  contentWrapper: {
-    paddingHorizontal: 16,
-    marginTop: 247,
-    backgroundColor: "#fff",
-    borderTopLeftRadius: 25,
-    borderTopRightRadius: 25,
+  image: {
+    height: 400,
+    borderRadius: 8,
   },
   title: {
-    fontFamily: "Roboto",
-    fontWeight: "500",
-    fontSize: 30,
-    lineHeight: 35,
-    textAlign: "center",
-    marginTop: 32,
-    marginBottom: 32,
     color: "#212121",
+    fontSize: 16,
+    fontWeight: "bold",
+    marginTop: 5,
+    marginBottom: 5,
   },
-  avatarWrapper: {
-    position: "absolute",
-    top: -60,
-    alignSelf: "center",
-    width: 120,
-    height: 120,
-    backgroundColor: "#f6f6f6",
-    borderRadius: 16,
+  detailsContainer: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
-  avatar: {
-    width: 120,
-    height: 120,
-    borderRadius: 16,
+  detailsRow: {
+    flexDirection: "row",
+    gap: 24,
   },
-  btnAddAvatar: {
-    position: "absolute",
-    bottom: 14,
-    right: -12.5,
+  detailsItem: {
+    flexDirection: "row",
     alignItems: "center",
-    alignContent: "center",
-    width: 25,
-    height: 25,
-    color: "#ff6c00",
-    backgroundColor: "#ffffff",
-    borderRadius: 50,
   },
-  btnAddAvatarLoad: {
-    transform: [{ rotate: "45deg" }],
+  commentIcon: {
+    transform: [{ rotateY: "180deg" }],
   },
-  btnAddAvatarSvg: {
-    fill: "#ff6c00",
-    stroke: "#ff6c00",
-    backgroundColor: "#ffffff",
+  detailsText: {
+    color: "#BDBDBD",
+    fontSize: 16,
+    marginLeft: 8,
   },
-  btnAddAvatarSvgLoad: {
-    fill: "#bdbdbd",
-    stroke: "#e8e8e8",
+  locationText: {
+    textDecorationLine: "underline",
+    textDecorationStyle: "solid",
+    textDecorationColor: "#1B4371",
+    color: "#212121",
+    marginLeft: 8,
   },
 });
+
+export default ProfileScreen;

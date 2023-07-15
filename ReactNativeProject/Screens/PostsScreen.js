@@ -1,84 +1,56 @@
 import React from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, TouchableOpacity } from "react-native";
+import { useDispatch } from "react-redux";
 import { createStackNavigator } from "@react-navigation/stack";
+import { Feather } from "@expo/vector-icons";
 
-import DefaultPostsScreen from "./DefaultPostsScreen";
-import CommentsScreen from "./CommentsScreen";
+import DefaultScreenPosts from "./DefaultScreenPosts";
 import MapScreen from "./MapScreen";
-import SvgArrowLeft from "../assets/svg/SvgArrowLeft";
+import CommentsScreen from "./CommentsScreen";
+import { logout } from "../redux/auth/operations";
 
-const NestedScreen = createStackNavigator();
+const Stack = createStackNavigator();
 
-const PostsScreen = ({ navigation }) => {
-  const renderHeaderLeft = (style) => (
-    <SvgArrowLeft
-      onPress={() => navigation.goBack()}
-      title="Return back"
-      color="#fff"
-      style={style}
-    />
-  );
+const PostsScreen = () => {
+  const dispatch = useDispatch();
 
   return (
-    <NestedScreen.Navigator
-      initialRouteName="DefaultPosts"
-      screenOptions={{ headerShown: false }}
+    <Stack.Navigator
+      screenOptions={{
+        headerTitleAlign: "center",
+        headerRight: () => (
+          <TouchableOpacity onPress={() => dispatch(logout())}>
+            <Feather
+              name="log-out"
+              size={24}
+              color="#BDBDBD"
+              style={{ marginRight: 10 }}
+            />
+          </TouchableOpacity>
+        ),
+        headerStyle: styles.headerStyle,
+        headerTitleStyle: styles.headerTitleStyle,
+      }}
     >
-      <NestedScreen.Screen name="DefaultPosts" component={DefaultPostsScreen} />
-      <NestedScreen.Screen
-        name="Comments"
-        component={CommentsScreen}
+      <Stack.Screen
+        name="DefaultScreen"
+        component={DefaultScreenPosts}
         options={{
-          ...screenOptions,
-          title: "Коментарі",
-          headerLeft: () => renderHeaderLeft(styles.arrowLeft),
+          title: "Posts",
         }}
       />
-      <NestedScreen.Screen
-        name="Map"
-        component={MapScreen}
-        options={{
-          ...screenOptions,
-          title: "Карта",
-          headerLeft: () =>
-            renderHeaderLeft({
-              ...styles.arrowLeft,
-              marginRight: 90,
-            }),
-        }}
-      />
-    </NestedScreen.Navigator>
+      <Stack.Screen name="Comments" component={CommentsScreen} />
+      <Stack.Screen name="Map" component={MapScreen} />
+    </Stack.Navigator>
   );
-};
-
-const screenOptions = {
-  headerShown: true,
-  headerStyle: {
-    borderBottomWidth: 0.5,
-    borderBottomColor: "rgba(0, 0, 0, 0.3)",
-    boxShadow: "0px 0.5px 0px rgba(0, 0, 0, 0.3)",
-  },
-  headerTintColor: "#212121",
-  headerTitleStyle: {
-    fontFamily: "Roboto",
-    fontStyle: "normal",
-    fontWeight: "bold",
-    fontSize: 17,
-    lineHeight: 22,
-    textAlign: "center",
-  },
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
+  headerStyle: {
+    backgroundColor: "#FFFFFF",
   },
-  arrowLeft: {
-    marginLeft: 16,
-    marginRight: 76,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+  headerTitleStyle: {
+    fontWeight: "bold",
   },
 });
 

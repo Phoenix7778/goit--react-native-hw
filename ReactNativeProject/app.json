@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "goit-react-native-hw-05",
-    "slug": "goit-react-native-hw-05",
+    "name": "goit-react-native-hw",
+    "slug": "goit-react-native-hw",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
